@@ -29,7 +29,18 @@ public class DispatcherServlet extends HttpServlet {
       params[reqParam.getKey()] = param;
     }
 
-    Method method  = invocation.getMethod();
-    // TODO : method.invoke()
+    Method method = invocation.getMethod();
+    Object instance = getService(method.getDeclaringClass());
+    try {
+      Object res = method.invoke(instance, params);
+      resp.getOutputStream().println(res.toString());
+      resp.getOutputStream().flush();
+    } catch (Exception e) {
+      throw new RuntimeException(e);
+    }
+  }
+
+  Object getService(Class<?> clazz) {
+    return ServicesStore.getInstance().getServiceInstance(clazz);
   }
 }
